@@ -1,3 +1,5 @@
+import 'package:english_vocabulary_book/screens/screen_login.dart';
+import 'package:english_vocabulary_book/screens/screen_splash.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -5,24 +7,49 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(debugShowCheckedModeBanner: false, home:LearnWords() );
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: WordsList(),
+      routes: {
+        '/main': (context) => WordsList(),
+        '/login': (context) => LoginScreen(),
+        '/splash': (context) => SplashScreen(),
+      },
+      initialRoute: '/splash',
+    );
   }
 }
 
-class LearnWords extends StatefulWidget {
-  const LearnWords({Key? key}) : super(key: key);
+class WordsList extends StatefulWidget {
+  const WordsList({Key? key}) : super(key: key);
 
   @override
-  State<LearnWords> createState() => _LearnWordsState();
+  State<WordsList> createState() => _WordsListState();
 }
 
-class _LearnWordsState extends State<LearnWords> {
+class _WordsListState extends State<WordsList> {
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('English Words Book'),
+        backgroundColor: Colors.deepPurpleAccent,
+        actions: [
+          PopupMenuButton(itemBuilder: (context) {
+            return [
+              PopupMenuItem(
+                  child: Text("로그아웃"),
+                  onTap: () {
+                    //클릭 했을 때 로그아웃 되게
+                  })
+            ];
+          })
+        ],
+      ),
+    );
   }
 }
