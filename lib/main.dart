@@ -1,6 +1,7 @@
 import 'package:english_vocabulary_book/screens/screen_login.dart';
 import 'package:english_vocabulary_book/screens/screen_splash.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 void main() {
   runApp(const MyApp());
@@ -11,16 +12,15 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: WordsList(),
-      routes: {
-        '/main': (context) => WordsList(),
-        '/login': (context) => LoginScreen(),
-        '/splash': (context) => SplashScreen(),
-      },
-      initialRoute: '/splash',
-    );
+    return GetMaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: WordsList(),
+        initialRoute: '/splash',
+        getPages: [
+          GetPage(name: '/main', page: () => WordsList()),
+          GetPage(name: '/login', page: () => LoginScreen()),
+          GetPage(name: '/splash', page: () => SplashScreen()),
+        ]);
   }
 }
 

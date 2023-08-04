@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:retrofit/http.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -30,9 +32,9 @@ class _SplashScreenState extends State<SplashScreen> {
   void moveScreen() async {
     await checkLogin().then((isLogin){
       if(isLogin){
-        Navigator.of(context).pushReplacementNamed('/main');
+        Get.offAllNamed('/main');
       } else {
-        Navigator.of(context).pushReplacementNamed('/login');
+        Get.offAllNamed('/login')
       }
     });
   }
