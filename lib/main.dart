@@ -17,8 +17,6 @@ class MyApp extends StatelessWidget {
         home: WordsList(),
         initialRoute: '/splash',
         getPages: [
-          GetPage(name: '/main', page: () => WordsList()),
-          GetPage(name: '/login', page: () => LoginScreen()),
           GetPage(name: '/splash', page: () => SplashScreen()),
         ]);
   }
@@ -50,6 +48,8 @@ class _WordsListState extends State<WordsList> {
           })
         ],
       ),
+
+      // 단어 리스트
     );
   }
 }

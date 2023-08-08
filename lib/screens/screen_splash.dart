@@ -1,18 +1,27 @@
 import 'dart:async';
 
-import 'package:flutter/cupertino.dart';
+import 'package:english_vocabulary_book/main.dart';
+import 'package:english_vocabulary_book/screens/screen_login.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:retrofit/http.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashScreen extends StatefulWidget {
 
   @override
-  State<SplashScreen> createState() => _SplashScreenState();
+  _SplashScreenState createState() => _SplashScreenState();
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+
+  @override
+  void initState() {
+    super.initState();
+    Timer(Duration(milliseconds: 1500), (){
+      moveScreen();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return const Scaffold(
@@ -32,18 +41,11 @@ class _SplashScreenState extends State<SplashScreen> {
   void moveScreen() async {
     await checkLogin().then((isLogin){
       if(isLogin){
-        Get.offAllNamed('/main');
+        Get.offAll(WordsList());
       } else {
-        Get.offAllNamed('/login')
+        Get.offAll(LoginScreen());
       }
     });
   }
 
-  @override
-  void initState() {
-    super.initState();
-    Timer(Duration(milliseconds: 1500), (){
-      moveScreen();
-    });
-  }
 }
