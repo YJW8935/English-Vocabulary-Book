@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
@@ -6,6 +5,7 @@ import 'package:english_vocabulary_book/screens/screen_register.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart' hide Response;
 import 'package:get/get_core/src/get_main.dart';
 
@@ -23,6 +23,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _idController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
+  final Dio _dio = Dio(BaseOptions(baseUrl: 'http://192.168.0.144:8080'));
   static final storage = FlutterSecureStorage();
   dynamic userInfo = '';
 
@@ -42,17 +43,18 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             const SizedBox(height: 20),
             _userIdWidget(),
-            const SizedBox(height: 20),
+            const SizedBox(height: 10),
             _passwordWidget(),
+            const SizedBox(height: 20),
             Container(
               height: 70,
               width: double.infinity,
               padding: const EdgeInsets.only(top: 8.0), // 8단위 배수가 보기 좋음
               child: ElevatedButton(
-                // 로그인 버튼
+                  // 로그인 버튼
                   style: ButtonStyle(
                       backgroundColor:
-                      MaterialStateProperty.all(Colors.deepPurpleAccent)),
+                          MaterialStateProperty.all(Colors.deepPurpleAccent)),
                   onPressed: () => _login(),
                   child: const Text("로그인")),
             ),
@@ -90,10 +92,11 @@ class _LoginScreenState extends State<LoginScreen> {
     return TextFormField(
       controller: _passwordController,
       obscureText: true,
-      maxLength: 13,
+      maxLength: 35,
       decoration: const InputDecoration(
         border: OutlineInputBorder(),
         labelText: 'Password',
+        counterText: '',
       ),
       validator: (String? value) {
         if (value!.isEmpty) {
@@ -103,6 +106,12 @@ class _LoginScreenState extends State<LoginScreen> {
         return null;
       },
     );
+  }
+
+  void _showErrorMessage(String message) {
+    Get.snackbar('실패', message,
+      snackPosition: SnackPosition.BOTTOM,
+      colorText: Colors.black,);
   }
 
   @override
@@ -115,13 +124,10 @@ class _LoginScreenState extends State<LoginScreen> {
     });
   }
 
-  _asyncMethod() async {
-    // read 함수로 key값에 맞는 정보를 불러오고 데이터타입은 String 타입
-    // 데이터가 없을때는 null을 반환
-    userInfo = await storage.read(key:'login');
+  Future<void> _asyncMethod() async {
+    userInfo = await storage.read(key: 'login');
 
-    // user의 정보가 있다면 로그인 후 들어가는 첫 페이지로 넘어가게 합니다.
-    if (userInfo != null) {
+    if (userInfo != null && userInfo != '') {
       Get.offAll(WordsList());
     } else {
       print('로그인이 필요합니다');
@@ -129,57 +135,42 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   // 로그인 버튼 누를 시
-  _login() async {
-    if (await loginAction(_idController.text, _passwordController.text) == true) {
-      print('로그인 성공');
-      Get.offAll(() => const WordsList());
-    } else {
-      print('로그인 실패');
+  Future<void> _login() async {
+    final String id = _idController.text;
+    final String password = _passwordController.text;
+
+    if (id.isEmpty) {
+      _showErrorMessage('아이디를 입력해주세요.');
+      return;
     }
-  }
 
-  loginAction(id, password) async {
+    if (password.isEmpty) {
+      _showErrorMessage('비밀번호를 입력해주세요.');
+      return;
+    }
+
     try {
-      Dio dio = new Dio();
-      var param = {'id': '$id', 'password': '$password'};
+      final response = await _dio.post('/user/login', data: {
+        'id': id,
+        'password': password,
+      });
 
-      Response response = await dio.post('http://192.168.0.131:8080', data: param);
+      if (response.statusCode != null) {
+        print("Response Status Code: ${response.statusCode}");
+      }
 
       if (response.statusCode == 200) {
-        final jsonBody = json.decode(response.data['user_id'].toString());
-        var val = jsonEncode(LoginModel('$id', '$password'));
+        final jsonBody = response.data['id'].toString();
+        var val = jsonEncode(LoginModel(id, password));
         await storage.write(key: 'login', value: val);
-        print('로그인 성공');
-        return true;
+        Get.offAll(WordsList());
       } else {
-        print('error');
-        showDialog(
-          context: context,
-          barrierDismissible: true,
-          builder: ((context) {
-            return AlertDialog(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0)),
-              title: Text("로그인 실패"),
-              content: Text("로그인에 실패하였습니다. 아이디/비밀번호를 확인해주세요."),
-              actions: <Widget>[
-                Container(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Get.back();
-                    },
-                    child: Text("네"),
-                  ),
-                )
-              ],
-            );
-          }),
-        );
-        return false;
+        print(response.statusCode);
+        _showErrorMessage('아이디 또는 비밀번호가 틀립니다.');
       }
     } catch (e) {
-      return false;
+      print('Error: $e');
+      _showErrorMessage('서버 오류가 발생했습니다.');
     }
   }
-
 }

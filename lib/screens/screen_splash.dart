@@ -38,14 +38,12 @@ class _SplashScreenState extends State<SplashScreen> {
     return isLogin;
   }
   
-  void moveScreen() async {
-    await checkLogin().then((isLogin){
-      if(isLogin){
-        Get.offAll(WordsList());
-      } else {
-        Get.offAll(LoginScreen());
-      }
-    });
+  Future<void> moveScreen() async {
+    bool isLogin = await checkLogin();
+    if (isLogin) {
+      Get.offAll(WordsList());
+    } else {
+      Get.offAll(LoginScreen());
+    }
   }
-
 }

@@ -18,13 +18,12 @@ class MyApp extends StatelessWidget {
         initialRoute: '/splash',
         getPages: [
           GetPage(name: '/splash', page: () => SplashScreen()),
+          GetPage(name: '/login', page: () => LoginScreen()),
         ]);
   }
 }
 
 class WordsList extends StatefulWidget {
-  const WordsList({Key? key}) : super(key: key);
-
   @override
   State<WordsList> createState() => _WordsListState();
 }
@@ -41,8 +40,9 @@ class _WordsListState extends State<WordsList> {
             return [
               PopupMenuItem(
                   child: Text("로그아웃"),
-                  onTap: () {
-                    //클릭 했을 때 로그아웃 되게
+                  onTap: () async {
+                    await Future.delayed(Duration(milliseconds: 100));
+                    Get.offAllNamed('/login');
                   })
             ];
           })
@@ -50,6 +50,7 @@ class _WordsListState extends State<WordsList> {
       ),
 
       // 단어 리스트
+
     );
   }
 }
